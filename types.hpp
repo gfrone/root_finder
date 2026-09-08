@@ -28,17 +28,36 @@ struct IterationData {
     double error_y; 
 };
 
+enum class Method {
+    BISSECAO,
+    FALSA_POSICAO,
+    NEWTON,
+    SECANTE,
+};
+
 struct SolverResult {
-    StatusCode status;
-    double root;
-    int iterations_used;
+    StatusCode status = StatusCode::OTHERS;
+    double root = 0.0;
+    int iterations_used = 0;
     std::vector<IterationData> history;
-    ConvergenceType convergence;
+    ConvergenceType convergence = ConvergenceType::NONE;
+    std::string method_name = ""; 
 
     SolverResult() = default;
 
-    SolverResult(StatusCode stat, double root_val = 0.0, int iter = 0, const std::vector<IterationData>& hist = {}) 
-        : status(stat), root(root_val), iterations_used(iter), history(hist) {}
+    SolverResult(
+        StatusCode stat, 
+        double root_val = 0.0, 
+        int iter = 0, 
+        const std::vector<IterationData>& hist = {}, 
+        const std::string& name = "",
+        ConvergenceType conv = ConvergenceType::NONE
+    ) : status(stat), 
+        root(root_val), 
+        iterations_used(iter), 
+        history(hist), 
+        convergence(conv),
+        method_name(name) {}
 
     bool is_sucess() const {
         return status == StatusCode::SUCCESS;

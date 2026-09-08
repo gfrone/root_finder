@@ -21,6 +21,7 @@ bool safe_eval(
 
 SolverResult bissecao(const std::function<Dual(const Dual&)>& f, double a, double b, double tol) {
     SolverResult result;
+    result.method_name = "Bissecao";
     result.iterations_used=0;
     double fa, fb;
 
@@ -58,8 +59,22 @@ SolverResult bissecao(const std::function<Dual(const Dual&)>& f, double a, doubl
     } 
 
     double intervalo = std::fabs(b - a);
-    double n = std::log(intervalo / tol) / std::log(2.0);
-    int num_iters = static_cast<int>(std::ceil(n));
+
+    // 4. Cálculo seguro do número máximo de iterações
+    const int max_iter = 100;
+    int num_iters = max_iter;
+
+    if(intervalo > tol) {
+        double n = std::log(intervalo / tol) / std::log(2.0);
+        if(std::isfinite(n) && n > 0) {
+            num_iters = (n < max_iter) ? n : max_iter;
+        }
+    }
+    else {
+        // se intervalo ja é maior que  tol, basta somente avaliar no ponto medio
+        num_iters = 1;
+    }
+    
 
     double meio = (a + b) / 2;
     double fm;
@@ -118,18 +133,28 @@ SolverResult bissecao(const std::function<Dual(const Dual&)>& f, double a, doubl
             fa = fm;
         }
     }
-
-    // Se chegou aqui, o número de iterações calculado por num_iters garante,
-    // por construção, erro em x < tol — então a convergência é por x.
-    result.status = StatusCode::SUCCESS;
+    
     result.root = meio;
     result.iterations_used = num_iters;
-    result.convergence = ConvergenceType::BY_X;
+    
+    if(!result.history.empty() && result.history.back().error_x < tol) {
+        // Se chegou aqui, o número de iterações calculado por num_iters garante,
+        // por construção, erro em x < tol — então a convergência é por x.
+        result.status = StatusCode::SUCCESS;
+        result.convergence = ConvergenceType::BY_X;
+    }
+    
+    else {
+        result.status = StatusCode::MAX_ITERATIONS_REACHED;
+        result.convergence = ConvergenceType::NONE;
+    }
+
     return result;
 }
 
-SolverResult falsaPosicao(const std::function<Dual(const Dual&)>& f, double a, double b, double tol, int max_iter=100) {
+SolverResult falsaPosicao(const std::function<Dual(const Dual&)>& f, double a, double b, double tol, int max_iter) {
     SolverResult result;
+    result.method_name= "Falsa Posicao";
     result.iterations_used=0;
     double fa, fb;
 
@@ -242,8 +267,9 @@ SolverResult falsaPosicao(const std::function<Dual(const Dual&)>& f, double a, d
     return result;
 }
 
-SolverResult newton_raphsen(const std::function<Dual(const Dual&)>& f, double a, double tol, int max_iter=100) {
+SolverResult newton_raphson(const std::function<Dual(const Dual&)>& f, double a, double tol, int max_iter) {
     SolverResult result;
+    result.method_name= "Newton-Raphson";
     result.iterations_used = 0;
     double current_x = a;
 
@@ -353,8 +379,9 @@ SolverResult newton_raphsen(const std::function<Dual(const Dual&)>& f, double a,
     return result;
 }
 
-SolverResult secante(const std::function<Dual(const Dual&)>& f, double x0, double x1, double tol, int max_iter=100) {
+SolverResult secante(const std::function<Dual(const Dual&)>& f, double x0, double x1, double tol, int max_iter) {
     SolverResult result;
+    result.method_name = "Secante";
     result.iterations_used = 0;
 
     double f0, f1;

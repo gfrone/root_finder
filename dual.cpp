@@ -148,7 +148,7 @@ Dual sec(const Dual &x){
     return Dual(sec_v, x.der * (std::tan(x.val) * sec_v));
 }
 
-Dual csc(const Dual &x) {
+Dual csc(const Dual &/*x*/) {
     // nao implementada
     return Dual(0.0, 0.0);
 }

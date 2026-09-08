@@ -7,39 +7,11 @@
 #include "types.hpp"
 #include <functional>
 
-/*
-Método da bisseção:
-    - Dado um intervalo [a, b], percorrer através do ponto médio do intervalo
-    - Esta implementação, ja calcula o numero maximo de iterações com:
-        n >= log(b - a) - log(tol)/ log(2)
-*/
-SolverResult bissecao(
-    const std::function<Dual(const Dual&)>& f,
-    double a,
-    double b,
-    double tol
-);
+// Declaração dos solvers com valores padrão de tolerância e iterações
+SolverResult bissecao(const std::function<Dual(const Dual&)>& f, double a, double b, double tol = 1e-6);
+SolverResult falsaPosicao(const std::function<Dual(const Dual&)>& f, double a, double b, double tol = 1e-6, int max_iter = 100);
+SolverResult newton_raphson(const std::function<Dual(const Dual&)>& f, double a, double tol = 1e-6, int max_iter = 100);
+SolverResult secante(const std::function<Dual(const Dual&)>& f, double x0, double x1, double tol = 1e-6, int max_iter = 100);
 
-
-SolverResult falsaPosicao(
-    const std::function<Dual(const Dual&)>& f,
-    double a,
-    double b,
-    double tol,
-    int max_iter
-);
-
-SolverResult newton_raphsen(
-    const std::function<Dual(const Dual&)>& f,
-    double a,
-    double tol,
-    int max_iter
-);
-
-SolverResult secante(
-    const std::function<Dual(const Dual&)>& f,
-    double a,
-    double b,
-    double tol,
-    int max_iter
-);
+// Declaração do estimador de ordem de convergência (usado pelo reporter)
+double estimate_convergence_order(const SolverResult& result);

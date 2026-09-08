@@ -33,16 +33,11 @@ void exercicio_7(int a, int b, int tol) {
         return x*x*x + x - 10;
     };
 
-    std::vector<SolverResult> solv;
+    report_bissecao(f1, a, b, tol);
+    report_bissecao(f2, a, b, tol);
+    report_bissecao(f3, a, b, tol);
+    report_bissecao(f4, a, b, tol);
 
-    solv.push_back(bissecao(f1, a, b, tol));
-    solv.push_back(bissecao(f2, a, b, tol));
-    solv.push_back(bissecao(f3, a, b, tol));
-    solv.push_back(bissecao(f4, a, b, tol));
-
-    for(auto& s : solv) {
-        print_history(s, 1);
-    }
 
 }
 
