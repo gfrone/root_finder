@@ -21,6 +21,9 @@ bool safe_eval(
 }
 
 namespace {
+// Esse trecho implementa uma verificação de estagnação numérica 
+//nos métodos iterativos. 
+//A função compara duas aproximações consecutivas: oito vezes a precisão relativa do tipo \texttt{double}.
 
 constexpr double STAGNATION_ULPS = 8.0;
 
@@ -117,14 +120,23 @@ SolverResult bissecao(const std::function<Dual(const Dual&)>& f, double a, doubl
         meio = a / 2.0 + b / 2.0;
 
         // Se o ponto médio for igual a um dos extremos, chegamos ao limite do hardware (double)
-        /*
-            O tipo double (padrão IEEE 754) possui 53 bits de mantissa (aproximadamente 15 a 17 dígitos significativos).
-        */
+        //O tipo double (padrão IEEE 754) possui 53 bits de mantissa 
+        // (aproximadamente 15 a 17 dígitos significativos).
+    
         if (meio == a || meio == b) {
-            result.status = StatusCode::SUCCESS;
+            const double error_x = std::fabs(b - a);
             result.root = meio;
             result.iterations_used = i + 1;
-            result.convergence = ConvergenceType::BY_X;
+            
+            if(error_x <= tol) {
+                result.status = StatusCode::SUCCESS;
+                result.convergence = ConvergenceType::BY_X;
+            }
+            else {
+                result.status = StatusCode::STAGNATION;
+                result.convergence = ConvergenceType::NONE;
+            }
+
             return result;
         }
 
@@ -269,7 +281,7 @@ SolverResult falsaPosicao(const std::function<Dual(const Dual&)>& f, double a, d
         double denom = fb - fa;
 
         // Proteção contra denominadores quase nulos
-        if (std::fabs(denom) <= 1e-15) {
+        if (denom == 0.0) {
             result.status = StatusCode::DIVISION_BY_ZERO;
             result.root = has_prev ? prev_x : a;
             result.iterations_used = i + 1;
@@ -372,7 +384,6 @@ SolverResult newton_raphson(const std::function<Dual(const Dual&)>& f, double a,
     result.iterations_used = 0;
     double current_x = a;
 
-    // 1. Validação de parâmetros de entrada
     if (tol <= 0.0 || !std::isfinite(tol) || !std::isfinite(a)) {
         result.status = StatusCode::DOMAIN_INVALID;
         result.convergence = ConvergenceType::NONE;
@@ -381,6 +392,7 @@ SolverResult newton_raphson(const std::function<Dual(const Dual&)>& f, double a,
         return result;
     }
 
+    // limite max iter
     if (max_iter <= 0) {
         max_iter = 100;
     }
@@ -395,7 +407,7 @@ SolverResult newton_raphson(const std::function<Dual(const Dual&)>& f, double a,
         return result;
     }
 
-    // chute inicial e a raiz
+    // chute inicial é a raiz
     if(std::fabs(fd.val) <= tol || fd.val == 0.0) {
         result.status = StatusCode::SUCCESS;
         result.convergence = ConvergenceType::BY_Y;
@@ -427,7 +439,7 @@ SolverResult newton_raphson(const std::function<Dual(const Dual&)>& f, double a,
             return result;
         }
 
-        // derivada mt proxima de zero, n deve prosseguir
+        // derivada igual a zero, n deve prosseguir
         if (dfx == 0.0) {
             result.status = StatusCode::DIVISION_BY_ZERO;
             result.convergence = ConvergenceType::NONE;

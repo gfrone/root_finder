@@ -113,6 +113,7 @@ Dual log(const Dual& x, double base) {
 }
 
 Dual pow(double base, const Dual& x) {
+    // aqui a^x
     if (base <= 0.0) {
         throw std::domain_error(
             "pow: a base deve ser maior que zero"
@@ -123,6 +124,11 @@ Dual pow(double base, const Dual& x) {
     double derivative = x.der * value * std::log(base);
 
     return Dual(value, derivative);
+}
+
+Dual pow(const Dual& x, double base) {
+    // aqui x^a, derivada a * x^(a-1) * x' 
+    return Dual(std::pow(x.val, base), x.der * base * pow(x.val, base-1) );
 }
 
 Dual sqrt(const Dual& x) {
@@ -161,9 +167,32 @@ Dual sec(const Dual &x){
     return Dual(sec_v, x.der * (std::tan(x.val) * sec_v));
 }
 
-Dual csc(const Dual &/*x*/) {
-    // nao implementada
-    return Dual(0.0, 0.0);
+Dual csc(const Dual &x) {
+    double sin_val = std::sin(x.val);
+
+    if (std::fabs(sin_val) < 1e-9) {
+        throw std::domain_error("csc: proximo a assintota (sin(x) proximo de zero)");
+    }
+
+    double csc_v  = 1.0 / sin_val;
+    double cos_val = std::cos(x.val);
+
+    // derivada: -csc(x)*cot(x) = -cos(x) * csc(x)^2
+    return Dual(csc_v, -x.der * cos_val * csc_v * csc_v);
+}
+
+Dual cot(const Dual &x) {
+    double sin_val = std::sin(x.val);
+
+    if (std::fabs(sin_val) < 1e-9) {
+        throw std::domain_error("cot: proximo a assintota (sin(x) proximo de zero)");
+    }
+
+    double cos_val = std::cos(x.val);
+    double cot_v   = cos_val / sin_val;
+
+    // derivada: -csc(x)^2 = -1/sin(x)^2
+    return Dual(cot_v, -x.der / (sin_val * sin_val));
 }
 
 Dual tan(const Dual &x){
