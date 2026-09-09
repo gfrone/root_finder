@@ -22,6 +22,7 @@ public:
 
 // Outras operações
 Dual exp(const Dual& x);
+Dual pow(double base, const Dual& x);
 // se nao for especificado a base, é log na base natural, por isso 2 funções diferentes
 Dual log(const Dual& x);
 Dual log(const Dual& x, double base);

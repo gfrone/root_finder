@@ -32,9 +32,10 @@ void print_history(
         << std::setw(20) << "f(x)"
         << std::setw(20) << "Erro X"
         << std::setw(20) << "Erro Y"
+        << std::setw(20) << "Passo X"
         << '\n';
 
-    std::cout << std::string(90, '-') << '\n';
+    std::cout << std::string(110, '-') << '\n';
 
     const std::size_t last = result.history.size() - 1;
 
@@ -58,6 +59,7 @@ void print_history(
             << std::setw(20) << data.f_x
             << std::setw(20) << data.error_x
             << std::setw(20) << data.error_y
+            << std::setw(20) << data.step_x
             << '\n';
     }
 
@@ -117,19 +119,23 @@ void report_method(
                       << order
                       << '\n';
 
-            if (!result.history.empty()) {
-                const auto& last = result.history.back();
-
-                std::cout << std::scientific << std::setprecision(10);
-                std::cout << "Erro final em X:     "
-                          << last.error_x
-                          << '\n';
-                std::cout << "Erro final em Y:     "
-                          << last.error_y
-                          << '\n';
-            }
         } else {
             std::cout << "Ordem estimada:      N/A\n";
+        }
+
+        if (!result.history.empty()) {
+            const auto& last = result.history.back();
+
+            std::cout << std::scientific << std::setprecision(10);
+            std::cout << "Erro final em X:     "
+                      << last.error_x
+                      << '\n';
+            std::cout << "Erro final em Y:     "
+                      << last.error_y
+                      << '\n';
+        } else {
+            std::cout << "Erro final em X:     N/A\n";
+            std::cout << "Erro final em Y:     N/A\n";
         }
     }
 
@@ -307,15 +313,21 @@ void report_all(
         const std::string& name,
         const SolverResult& result
     ) {
-        if (result.status != StatusCode::SUCCESS || result.history.empty()) {
+        if (result.status != StatusCode::SUCCESS) {
+            return;
+        }
+
+        std::cout
+            << std::left
+            << std::setw(18) << name;
+
+        if (result.history.empty()) {
+            std::cout << "Erro X = N/A    Erro Y = N/A\n";
             return;
         }
 
         const auto& last = result.history.back();
-
         std::cout
-            << std::left
-            << std::setw(18) << name
             << "Erro X = "
             << std::scientific
             << std::setprecision(6)
@@ -408,11 +420,11 @@ void benchmark_metodos(
         << std::setw(18) << "Metodo"
         << std::setw(14) << "Ordem"
         << std::setw(12) << "Iteracoes"
-        << std::setw(18) << "Erro"
-        << std::setw(14) << "Status"
+        << std::setw(18) << "Erro de parada"
+        << std::setw(50) << "Status"
         << '\n';
 
-    std::cout << std::string(82, '-') << '\n';
+    std::cout << std::string(118, '-') << '\n';
 
     int rank = 1;
 
@@ -448,7 +460,7 @@ void benchmark_metodos(
         
         std::string status_s = entry.result.get_status_message();
         std::cout
-            << std::setw(14) << status_s
+            << std::setw(50) << status_s
             << '\n';
     }
 

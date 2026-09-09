@@ -11,6 +11,7 @@ enum class StatusCode {
     DOMAIN_INVALID,
     DIVISION_BY_ZERO,
     DIVERGENCE,
+    STAGNATION,
     OTHERS  // - inclui a == b, ou outros
 };
 
@@ -24,8 +25,9 @@ struct IterationData {
     int it;           // Iteração atual
     double x_k;       // Valor de x na iteração atual
     double f_x;       // Valor da função em x_k
-    double error_x;     // Erro estimado (ex: |x_k - x_{k-1}| ou |f(x)|)
-    double error_y; 
+    double error_x;     // Erro estimado específico do método
+    double error_y;     // |f(x_k)|
+    double step_x;      // |x_k - x_{k-1}|
 };
 
 enum class Method {
@@ -73,9 +75,11 @@ struct SolverResult {
         case StatusCode::DOMAIN_INVALID: 
             return "Erro Fatal: Avaliação fora do domínio matemático. ";
         case StatusCode::DIVISION_BY_ZERO: 
-            return "Erro Fatal: Divisão por zero detectada (possível derivada nula). ";
+            return "Erro Fatal: Divisão por zero detectada ";
         case StatusCode::DIVERGENCE: 
             return "Erro Fatal: O método divergiu para o infinito (Inf ou NaN). ";
+        case StatusCode::STAGNATION:
+            return "Aviso: O método entrou em estagnação sem encontrar uma raiz. ";
         default: 
             return "Erro Fatal: Ocorrência não mapeada. ";
         }

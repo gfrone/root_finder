@@ -112,8 +112,21 @@ Dual log(const Dual& x, double base) {
     );
 }
 
+Dual pow(double base, const Dual& x) {
+    if (base <= 0.0) {
+        throw std::domain_error(
+            "pow: a base deve ser maior que zero"
+        );
+    }
+
+    double value = std::pow(base, x.val);
+    double derivative = x.der * value * std::log(base);
+
+    return Dual(value, derivative);
+}
+
 Dual sqrt(const Dual& x) {
-    if(x.val <= 0.0) {
+    if(x.val < 0.0) {
         throw std::domain_error("domínio deve ser >= 0");
     }
 
@@ -189,7 +202,7 @@ Dual acos(const Dual& x){
     double acos_value = std::acos(x.val);
     double x_squared = std::pow(x.val, 2);
 
-    return Dual(acos_value, - x.der * (1.0 / std::sqrt(1 + x_squared)));
+    return Dual(acos_value, - x.der * (1.0 / std::sqrt(1 - x_squared)));
 }
 
 Dual atan(const Dual& x){
