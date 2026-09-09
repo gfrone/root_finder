@@ -9,6 +9,7 @@
 
 
 void exericicio_7(double tol){
+    std::cout << "Exercicio 7:" << '\n';
     auto f1 = [](const Dual& x){
         return x - pow(2, x);
     };
@@ -34,6 +35,8 @@ void exericicio_7(double tol){
 }
 
 void exercicio_8(double tol){
+    std::cout << "Exercicio 8: " << '\n';
+
     auto f1 = [](const Dual& x) {
         return x - pow(25, 1/3);
     };
@@ -43,6 +46,8 @@ void exercicio_8(double tol){
 }
 
 void exercicio_9(double tol) {
+    std::cout << "Exercicio 9: " << '\n';
+
     auto f1 = [](const Dual& x) {
         return exp(x) + 2 - x + 2 * cos(x) - 6;
     };
@@ -74,6 +79,8 @@ void exercicio_9(double tol) {
 }
 
 void exercicio_10(double tol) {
+    std::cout << "Exercicio 10: " << '\n';
+
     auto f1 = [](const Dual& x) {
         return exp(x) + 2 - x + 2 * cos(x) - 6;
     };
@@ -116,6 +123,8 @@ void exercicio_10(double tol) {
 }
 
 void exercicio_11(double tol) {
+    std::cout << "Exercicio 11: " << '\n';
+
     auto f1 = [](const Dual& x) {
         return x * x * x - 9 * x * x + 12;
     };
@@ -163,6 +172,8 @@ void exercicio_11(double tol) {
 }
 
 void exercicio_12(double tol) {
+    std::cout << "Exercicio 12: " << '\n';
+
     auto populacao = [](const Dual& lambda) {
         return 1000000 * exp(lambda)
             + (435000 / lambda) * (exp(lambda) - 1)
